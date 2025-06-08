@@ -82,7 +82,10 @@ void PlantRandomMines(t_minefield * mf) {
 		mf->mine_locations[i * 2 + 1] = GetRandomValue(0, mf->height - 1);
 		//Check if this mine is in the same place as every mine before it and, if so,
 		//generate it someplace else until that isn't the case
-		for (int j = i+1; j < mf->mine_count; j++) {
+		for (int j = 0; j < mf->mine_count; j++) {
+			if (j == i) {
+				continue;
+			}
 			int equals = (mf->mine_locations[i * 2] == mf->mine_locations[j * 2]);
 			equals = equals && (mf->mine_locations[i * 2 + 1] == mf->mine_locations[j * 2 + 1]);
 			if (equals) {

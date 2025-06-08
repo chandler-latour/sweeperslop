@@ -52,6 +52,14 @@ int main(void)
         //----------------------------------------------------------------------------------
         // TODO: Update your variables here
         //----------------------------------------------------------------------------------
+
+		s_x = (GetMouseX() - 32)/32;
+		s_y = (GetMouseY() - 32)/32;
+		s_x = (s_x < 0) ? 0 : s_x;
+		s_x = (s_x > mv.mf->width - 1) ? mv.mf->width - 1 : s_x;
+		s_y = (s_y < 0) ? 0 : s_y;
+		s_y = (s_y > mv.mf->height - 1) ? mv.mf->height - 1 : s_y;
+		
 		
 		//move the selector
 		if (IsKeyPressed(KEY_UP) && s_y > 0) {
@@ -66,7 +74,7 @@ int main(void)
 		if (IsKeyPressed(KEY_RIGHT) && s_x < mv.mf->width - 1) {
 			s_x = s_x + 1;
 		}
-		if (IsKeyPressed(KEY_ENTER)) {
+		if (IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(0)) {
 			int prox = RevealTile(mv.mf, s_x, s_y, 0, 10);
 			UpdateMineView(&mv);
 		}
