@@ -9,7 +9,7 @@ this repo on it's own isn't everything you need to build. It doesn't include too
     - For each platform you wish to compile for, place the static Raylib library compiled for that platform (usually libraylib.a) in build/target/lib, where target is the platform you're targeting
 - Make
 
-to get this husk ready for build, you need to do the following:
+to get this project ready for build, you need to do the following:
 
 1. Download or otherwise obtain your desired release of Raylib for whatever platform you want to compile for
 2. Create an "include" directory in the root of this project and put raylib's .h headers in there
