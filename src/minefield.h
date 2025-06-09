@@ -15,6 +15,8 @@ typedef struct s_minefield {
 } t_minefield;
 
 enum VIEWTILES {
+	BUMP=-4,
+	FLAG=-3,
 	MINE_H=-2,
 	H=-1,
 	R=0,

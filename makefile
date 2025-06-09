@@ -80,6 +80,12 @@ $(dir_obj)/minefield.o: src/minfield.c
 $(dir_obj)/bitmap.o: src/bitmap.c
 #You can see that main.o doesn't have any instructions for fulfilling the target. That's because it uses the implicit rule.
 
+run web:
+	./run_web.sh & disown;
+
+run linux_amd64:
+	./run_linux_amd64.sh & disown;
+
 clean: 
 	rm build/*/obj/*.o build/*/bin/*
 	rm -r build/linux_amd64/assets

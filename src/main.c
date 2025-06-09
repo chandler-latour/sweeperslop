@@ -30,7 +30,11 @@ int main(void)
     // Main game loop
 	Texture2D tile = LoadTexture("../assets/tex/unrevealed_tile.png");
 	Texture2D tile_bump = LoadTexture("../assets/tex/bump_tile.png");
-	Texture2D tiles_r[10] = {
+	Texture2D tiles_r[14] = {
+		LoadTexture("../assets/tex/bump_tile.png"),
+		LoadTexture("../assets/tex/flag_tile.png"),
+		LoadTexture("../assets/tex/unrevealed_tile.png"), //TODO: draw unrevealed tile with mine on it and put it here
+		LoadTexture("../assets/tex/unrevealed_tile.png"),
 		LoadTexture("../assets/tex/blank_tile.png"),
 		LoadTexture("../assets/tex/one_tile.png"),
 		LoadTexture("../assets/tex/two_tile.png"),
@@ -60,7 +64,7 @@ int main(void)
 		s_y = (s_y < 0) ? 0 : s_y;
 		s_y = (s_y > mv.mf->height - 1) ? mv.mf->height - 1 : s_y;
 		
-		
+		signed char * selected_tile = &mv.proximities[s_x + s_y * mv.mf->width];		
 		//move the selector
 		if (IsKeyPressed(KEY_UP) && s_y > 0) {
 			s_y = s_y - 1;
@@ -78,6 +82,12 @@ int main(void)
 			int prox = RevealTile(mv.mf, s_x, s_y, 0, 10);
 			UpdateMineView(&mv);
 		}
+		if (IsMouseButtonPressed(1) && *selected_tile == H) {
+			*selected_tile = FLAG;
+		}
+		else if (IsMouseButtonPressed(1) && *selected_tile == FLAG) {
+			*selected_tile = H;
+		}
 	
         // Draw
         //----------------------------------------------------------------------------------
@@ -90,12 +100,7 @@ int main(void)
 			for (int i = 0; i < mv.mf->width; i++) {
 				for (int j = 0; j < mv.mf->height; j++) {
 					signed char prox = mv.proximities[i + j * mv.mf->width];
-					if (prox == -1) {
-						DrawTexture(tile, i*32 + 32, j * 32 + 32, YELLOW);
-					}
-					else if (prox < 10) {
-						DrawTexture(tiles_r[prox], i*32 + 32, j * 32 + 32, YELLOW);
-					}
+					DrawTexture(tiles_r[prox + 4], i*32 + 32, j * 32 + 32, YELLOW);
 				}
 			}
 			//draw selector

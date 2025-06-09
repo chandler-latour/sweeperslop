@@ -126,9 +126,12 @@ this function updates a mineview without creating a new one.
 void UpdateMineView(t_mineview * mv) {
 	int w = mv->mf->width;
 	int h = mv->mf->height;
-
+	
 	for (int i = 0; i < w; i++) {
 		for (int j = 0; j < h; j++) {
+			if (mv->proximities[i + j * w] == FLAG) {
+				continue;
+			}
 			mv->proximities[i + j * w] = ComputeTile(mv->mf, i, j);
 		}
 	}
