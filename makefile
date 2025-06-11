@@ -32,7 +32,7 @@ linux_amd64: cc = gcc
 # neither emcc nor gcc requires any extra flags than the shared ones for individual object files.
 cc_flags = -DPLATFORM_WEB 
 # the final flags are only required for the final target, and not for individual object files.
-build/emscripten/bin/index.html: cc_flags_final = -o $(dir_plat)/bin/index.html -L$(dir_lib) -s USE_GLFW=3 -s ASYNCIFY -DPLATFORM_WEB $(dir_lib)/libraylib.a --preload-file assets/
+build/emscripten/bin/index.html: cc_flags_final = -o $(dir_plat)/bin/index.html -L$(dir_lib) -s USE_GLFW=3 -DPLATFORM_WEB $(dir_lib)/libraylib.a --preload-file assets/
 linux_amd64: cc_flags_final = -o $(dir_plat)/bin/sweeperslop_linux_amd64 -L$(dir_plat)/lib/ -lraylib -lm
 linux_amd64: cc_flags = -g
 # some "shared" variables, meaning they're supposed to stay the same regardless of compiler/target file in general, 

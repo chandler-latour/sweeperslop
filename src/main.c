@@ -14,6 +14,13 @@
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
+
+typedef struct s_test {
+	int frame;
+	char str[100];
+} t_test;
+
+void UpdateDrawFrame(void *);
 int main(void)
 {
     // Initialization
@@ -23,7 +30,6 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "SWEEPER SLOP");
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
 	//set up minesweeper board
@@ -53,67 +59,20 @@ int main(void)
 	int s_x = 0;
 	int s_y = 0;
 	printf("done loading stuff!\n");
-	
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
+	t_test t = {};
+	t.frame = 0;
+	for (int i = 0; i < 100; i++) {
+		t.str[i] = '\0';
+	}
+	#ifdef PLATFORM_WEB
+	emscripten_set_main_loop_arg(UpdateDrawFrame, &t, 0, 1);
 
-		s_x = (GetMouseX() - 32)/32;
-		s_y = (GetMouseY() - 32)/32;
-		s_x = (s_x < 0) ? 0 : s_x;
-		s_x = (s_x > mv.mf->width - 1) ? mv.mf->width - 1 : s_x;
-		s_y = (s_y < 0) ? 0 : s_y;
-		s_y = (s_y > mv.mf->height - 1) ? mv.mf->height - 1 : s_y;
-		
-		signed char * selected_tile = &mv.proximities[s_x + s_y * mv.mf->width];		
-		//move the selector
-		if (IsKeyPressed(KEY_UP) && s_y > 0) {
-			s_y = s_y - 1;
-		}
-		if (IsKeyPressed(KEY_DOWN) && s_y < mv.mf->height - 1) {
-			s_y = s_y + 1;
-		}
-		if (IsKeyPressed(KEY_LEFT) && s_x > 0) {
-			s_x = s_x - 1;
-		}
-		if (IsKeyPressed(KEY_RIGHT) && s_x < mv.mf->width - 1) {
-			s_x = s_x + 1;
-		}
-		if (IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(0)) {
-			int prox = RevealTile(mv.mf, s_x, s_y, 0, 10);
-			UpdateMineView(&mv);
-		}
-		if (IsMouseButtonPressed(1) && *selected_tile == H) {
-			*selected_tile = FLAG;
-		}
-		else if (IsMouseButtonPressed(1) && *selected_tile == FLAG) {
-			*selected_tile = H;
-		}
-	
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-            ClearBackground(RAYWHITE);
-
-            DrawText("minesweeper go BRRRRRRRRR!", 8, 8, 20, LIGHTGRAY);
-			//draw minefield	
-			for (int i = 0; i < mv.mf->width; i++) {
-				for (int j = 0; j < mv.mf->height; j++) {
-					signed char prox = mv.proximities[i + j * mv.mf->width];
-					DrawTexture(tiles_r[prox + 4], i*32 + 32, j * 32 + 32, YELLOW);
-				}
-			}
-			//draw selector
-			DrawCircle(s_x*32 + 32, s_y*32 + 32, 5, DARKBLUE);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
-    }
-
+	#else
+	SetTargetFPS(60);
+    while (!WindowShouldClose()) {   // Detect window close button or ESC key
+		UpdateDrawFrame(&t);
+	}
+	#endif
     // De-Initialization
     //--------------------------------------------------------------------------------------
 	FreeMineView(&mv);
@@ -127,4 +86,17 @@ int main(void)
     //--------------------------------------------------------------------------------------
 
     return 0;
+}
+
+void UpdateDrawFrame(void * tpv) {
+	t_test * tp = (t_test *) tpv;
+	double dt = GetFrameTime();
+	int fps = GetFPS();
+	sprintf(tp->str, "frame:%u\ndt:%f\nfps:%u", tp->frame, dt, fps);
+	tp->frame += 1;
+
+	BeginDrawing();
+		ClearBackground(RAYWHITE);
+		DrawText(tp->str, 20, 20, 16, DARKGRAY);
+	EndDrawing();
 }
