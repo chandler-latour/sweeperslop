@@ -7,6 +7,10 @@
 
 #include "minefield.h"
 #include "bitmap.h"
+
+#ifdef PLATFORM_WEB
+#include <emscripten/emscripten.h>
+#endif
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
