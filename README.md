@@ -6,7 +6,7 @@ this repo on it's own isn't everything you need to build. It doesn't include too
 - The Emscripten and/or GCC toolchain
 - A copy of raylib for your desired build targets
     - Place the three raylib headers in the include/ directory. They aren't platform specific because they're just headers, so they work for every platform.
-    - For each platform you wish to compile for, place the static Raylib library compiled for that platform (usually libraylib.a) in build/target/lib, where target is the platform you're targeting
+    - For each platform you wish to compile for, place the Raylib libraries compiled for that platform in build/target/lib, where target is the platform you're targeting. I currently have it configured to build using the shared library file and to configure the executable to look for libary files in "../lib/" at runtime (via -Wl,--rpath=../lib/). In the future, I may configure support for the static library instead (I had too many errors with it on some systems so I gave up after a little while).
 - Make
 
 to get this project ready for build, you need to do the following:
