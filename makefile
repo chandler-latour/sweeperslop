@@ -12,7 +12,7 @@ build/emscripten/bin/index.html: dir_lib = ./build/emscripten/lib
 #Simplifies writing the requirements and variables for it.
 .PHONY: linux_amd64
 
-linux_amd64: dir_plat = ./build/linux_amd64
+linux_amd64: dir_plat = ./build/linux_amd64/
 linux_amd64: dir_obj = ./build/linux_amd64/obj
 linux_amd64: dir_lib = ./build/linux_amd64/lib
 
@@ -33,7 +33,7 @@ linux_amd64: cc = gcc
 cc_flags = -DPLATFORM_WEB 
 # the final flags are only required for the final target, and not for individual object files.
 build/emscripten/bin/index.html: cc_flags_final = -o $(dir_plat)/bin/index.html -L$(dir_lib) -s USE_GLFW=3 -DPLATFORM_WEB $(dir_lib)/libraylib.a --preload-file assets/
-linux_amd64: cc_flags_final = -o $(dir_plat)/bin/sweeperslop_linux_amd64 -L$(dir_plat)/lib/ -lraylib -lm
+linux_amd64: cc_flags_final = -o $(dir_plat)/bin/sweeperslop_linux_amd64 -L$(dir_plat)/lib -lm -lraylib -Wl,--rpath=../lib/
 linux_amd64: cc_flags = -g
 # some "shared" variables, meaning they're supposed to stay the same regardless of compiler/target file in general, 
 # but I might change them for entirely unrelated purposes.
