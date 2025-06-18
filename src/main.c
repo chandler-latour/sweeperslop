@@ -7,6 +7,7 @@
 
 #include "minefield.h"
 #include "bitmap.h"
+#include "gamestate.h"
 
 #ifdef PLATFORM_WEB
 #include <emscripten/emscripten.h>
@@ -36,8 +37,8 @@ int main(void)
 	t_minefield mf = NewMineField(9, 9, 10);
 	PlantRandomMines(&mf);
 	t_mineview mv = ComputeMineView(&mf);	
-
-    // Main game loop
+	
+	//set up textures!
 	Texture2D tile = LoadTexture("../assets/tex/unrevealed_tile.png");
 	Texture2D tile_bump = LoadTexture("../assets/tex/bump_tile.png");
 	Texture2D tiles_r[14] = {
@@ -64,8 +65,15 @@ int main(void)
 	for (int i = 0; i < 100; i++) {
 		t.str[i] = '\0';
 	}
+
+	t_gamestate test_gs;
+	test_gs.f_init = &f_pass;
+	test_gs.f_update = &UpdateDrawFrame;
+	test_gs.f_draw = &f_pass;
+	test_gs.f_close = &f_pass;
+	test_gs.game_data = &t;
 	#ifdef PLATFORM_WEB
-	emscripten_set_main_loop_arg(UpdateDrawFrame, &t, 0, 1);
+	emscripten_set_main_loop_arg(test_gs.f_update, test_gs.game_data, 0, 1);
 
 	#else
 	SetTargetFPS(60);

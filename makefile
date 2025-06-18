@@ -22,7 +22,7 @@ linux_amd64: dir_lib = ./build/linux_amd64/lib
 # and be sure to amend the requirements of other files that may now require this new object/source file.
 # THIS IS THE PART TO CHANGE WHEN ADDING NEW SOURCE FILES
 
-files_obj_raw = main.o bitmap.o minefield.o
+files_obj_raw = main.o bitmap.o minefield.o gamestate.o
 
 # variables for the cc and flags
 # flags change depending on whether we're compiling for native or the web browser
@@ -78,6 +78,7 @@ build/linux_amd64/bin/sweeperslop_linux_amd64: $(addprefix build/linux_amd64/obj
 $(dir_obj)/main.o: src/main.c
 $(dir_obj)/minefield.o: src/minfield.c
 $(dir_obj)/bitmap.o: src/bitmap.c
+$(dir_obj)/gamestate.o: src/gamestate.c
 #You can see that main.o doesn't have any instructions for fulfilling the target. That's because it uses the implicit rule.
 
 #Commented these out because it kept running stuff automatically after compiling and I didn't like it very much
