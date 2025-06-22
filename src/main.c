@@ -8,6 +8,7 @@
 #include "minefield.h"
 #include "bitmap.h"
 #include "gamestate.h"
+#include "gs_classic.h"
 
 #ifdef PLATFORM_WEB
 #include <emscripten/emscripten.h>
@@ -15,11 +16,12 @@
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-
+/*
 typedef struct s_test {
 	int frame;
 	char str[100];
 } t_test;
+*/
 
 void UpdateDrawFrame(void *);
 int main(void)
@@ -34,77 +36,30 @@ int main(void)
     //--------------------------------------------------------------------------------------
 
 	//set up minesweeper board
-	t_minefield mf = NewMineField(9, 9, 10);
-	PlantRandomMines(&mf);
-	t_mineview mv = ComputeMineView(&mf);	
+	t_boarddata bd = NewBoardData(48, 48, 9, 9, 10);
+	t_minesweepergfx gfx = LoadMinesweeperGFX();
 	
-	//set up textures!
-	Texture2D tile = LoadTexture("../assets/tex/unrevealed_tile.png");
-	Texture2D tile_bump = LoadTexture("../assets/tex/bump_tile.png");
-	Texture2D tiles_r[14] = {
-		LoadTexture("../assets/tex/bump_tile.png"),
-		LoadTexture("../assets/tex/flag_tile.png"),
-		LoadTexture("../assets/tex/unrevealed_tile.png"), //TODO: draw unrevealed tile with mine on it and put it here
-		LoadTexture("../assets/tex/unrevealed_tile.png"),
-		LoadTexture("../assets/tex/blank_tile.png"),
-		LoadTexture("../assets/tex/one_tile.png"),
-		LoadTexture("../assets/tex/two_tile.png"),
-		LoadTexture("../assets/tex/three_tile.png"),
-		LoadTexture("../assets/tex/four_tile.png"),
-		LoadTexture("../assets/tex/five_tile.png"),
-		LoadTexture("../assets/tex/six_tile.png"),
-		LoadTexture("../assets/tex/seven_tile.png"),
-		LoadTexture("../assets/tex/eight_tile.png"),
-		LoadTexture("../assets/tex/mine_tile.png")};
-
-	int s_x = 0;
-	int s_y = 0;
-	printf("done loading stuff!\n");
-	t_test t = {};
-	t.frame = 0;
-	for (int i = 0; i < 100; i++) {
-		t.str[i] = '\0';
-	}
-
-	t_gamestate test_gs;
-	test_gs.f_init = &f_pass;
-	test_gs.f_update = &UpdateDrawFrame;
-	test_gs.f_draw = &f_pass;
-	test_gs.f_close = &f_pass;
-	test_gs.game_data = &t;
+	t_gamestate classic_gs;
+	classic_gs.f_update = &UpdateClassicMineBoard;
+	classic_gs.f_draw = &DrawClassicMineBoard;
+	classic_gs.f_close = &CloseClassicMineBoard;
+	classic_gs.game_data = &bd;
+	classic_gs.graphics_data = &gfx;
+	
 	#ifdef PLATFORM_WEB
-	emscripten_set_main_loop_arg(test_gs.f_update, test_gs.game_data, 0, 1);
+	emscripten_set_main_loop_arg(comboloop, &classic_gs, 0, 1);
 
 	#else
 	SetTargetFPS(60);
     while (!WindowShouldClose()) {   // Detect window close button or ESC key
-		UpdateDrawFrame(&t);
+		comboloop(&classic_gs);
 	}
 	#endif
     // De-Initialization
     //--------------------------------------------------------------------------------------
-	FreeMineView(&mv);
-	FreeMineField(&mf);
-	UnloadTexture(tile);
-	UnloadTexture(tile_bump);
-	for (int i = 0; i < 10; i++) {
-		UnloadTexture(tiles_r[i]);
-	}
+	classic_gs.f_close(&classic_gs);
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return 0;
-}
-
-void UpdateDrawFrame(void * tpv) {
-	t_test * tp = (t_test *) tpv;
-	double dt = GetFrameTime();
-	int fps = GetFPS();
-	sprintf(tp->str, "frame:%u\ndt:%f\nfps:%u", tp->frame, dt, fps);
-	tp->frame += 1;
-
-	BeginDrawing();
-		ClearBackground(RAYWHITE);
-		DrawText(tp->str, 20, 20, 16, DARKGRAY);
-	EndDrawing();
 }
