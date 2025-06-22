@@ -1,6 +1,8 @@
 #include "raylib.h"
 #include "minefield.h"
 
+#include <assert.h>
+
 /*
 Creates a new minefield and allocates space to its various arrays
 */
@@ -32,6 +34,9 @@ t_minefield NewMineField(unsigned int w, unsigned int h, unsigned int m) {
 		*/
 	}
 	mf.revealed = malloc(ints * sizeof(int));
+	assert(mf.mine_locations); //TODO: cook up a better way to deal with
+	//unallocated minefields
+	assert(mf.revealed);
 	UnrevealBoard(&mf);
 	return mf;
 }
@@ -115,7 +120,8 @@ and fills in information.
 t_mineview ComputeMineView(t_minefield * mf) {
 	t_mineview mv;
 	mv.mf = mf;
-	mv.proximities = malloc(sizeof(char) * mf->width * mf->height);
+	mv.proximities = malloc(mf->width * mf->height * sizeof(char));
+	assert(mv.proximities);
 	UpdateMineView(&mv);
 	return mv;
 }
@@ -268,16 +274,6 @@ enum VIEWTILES RevealTile(t_minefield * mf, unsigned int x, unsigned int y, unsi
 	}
 
 	return return_val;
-}
-
-//This function creates a mineview and assigns it to a minefield
-t_mineview ViewMineField(t_minefield * mf) {
-	t_mineview mv;
-	mv.mf =  mf;
-	int width = mv.mf->width;
-	int height = mv.mf->height;
-	mv.proximities = malloc(width * height * sizeof(char));
-	return mv;
 }
 
 //this one frees the memory occupied by a mineview
