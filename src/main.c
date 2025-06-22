@@ -25,8 +25,8 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 600;
+    const int screenWidth = 640;
+    const int screenHeight = 480;
 
     InitWindow(screenWidth, screenHeight, "SWEEPER SLOP");
 
@@ -69,7 +69,7 @@ int main(void)
 
 	#else
 	SetTargetFPS(60);
-    while (!WindowShouldClose()) {   // Detect window close button or ESC key
+	while (!WindowShouldClose()) {   // Detect window close button or ESC key
 		UpdateDrawFrame(&t);
 	}
 	#endif
