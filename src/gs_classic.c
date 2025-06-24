@@ -3,17 +3,28 @@
 #include "minefield.h"
 #include "raylib.h"
 
+
+/*
+This function accepts a pointer to a board data and prepares it with the arguments.
+*/
+void PrepareBoardData(t_boarddata * bd, float x, float y, unsigned int width, unsigned int height, unsigned int mines) {
+	bd->position = (Vector2) {x, y};
+	bd->mf = NewMineField(width, height, mines);
+	PlantRandomMines(&(bd->mf));
+	bd->mv = ComputeMineView(&(bd->mf));
+}
+
+
 /*
 This function accepts the width, height, and mine count of a classic minesweeper board,
 and returns a gamestate running that board with a randomly generated assortment of mines.
+NOT RECOMMENDED, DEPRECIATED, DO NOT USE.
+It creates a bd on the stack, but memory addresses change when you return it, so the internal pointers break!
 */
 
 t_boarddata NewBoardData(float x, float y, unsigned int width, unsigned int height, unsigned int mines) {
 	t_boarddata bd;
-	bd.position = (Vector2) {x, y};
-	bd.mf = NewMineField(width, height, mines);
-	PlantRandomMines(&(bd.mf));
-	bd.mv = ComputeMineView(&(bd.mf));
+	PrepareBoardData(&bd, x, y, width, height, mines);
 	return bd;
 }
 
@@ -53,7 +64,29 @@ void UpdateClassicMineBoard(void * bdv) {
 
 	if (IsMouseButtonPressed(0)) {
 		int prox = RevealTile(mf, s_x, s_y, 0, 10);
-		UpdateMineView(mv);
+		UpdateMineView(mv); //TODO: UpdateMineView seems to receive a busted-ass
+		/*
+		version of the mineview wtf wtf idk
+		to clarify, I think the mineview is fine, but the minefield it points to is all kinds of busted
+		the width and height are way off and it causes the function trying to update the proximities list to segfault!
+		an example of my point:
+		gdb, break at UpdateMineView
+		value of mv->mf (mineview pointer to minefield): 0x0x7fffffff da28
+		up;
+		value of mf (mf pointer directly): 0x7fffffff dac8 
+		(off by 10, in the 16ths place)
+		breakthrough: mv.mf in the up also has the same value
+		it wasn't read wrong, it was assigned wrong!!! (fuck)
+	
+		MORE NOTES:
+		At the end of ComputeMineView, mv.mf == &(bd.mf) . . . FROM NewBoardData!!!!!!
+		Back in main, &bd.mv.mf is 10 off in the 16ths place!!!! (that's the problem!)
+		a bandaid solution would be to manually reassign the pointer in MAIN
+		but that sounds dirty and like I am doing a light hack because I can't figure out
+		some behavior IDK
+		but it doesn't make sense; why would the memory address change????
+
+		*/
 	}
 	if (IsMouseButtonPressed(1) && *selected_tile == H) {
 		*selected_tile = FLAG;

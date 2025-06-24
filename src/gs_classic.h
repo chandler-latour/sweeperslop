@@ -22,6 +22,8 @@ typedef struct s_boarddata {
 	t_mineview mv; //the mineview for the minefield
 } t_boarddata;
 
+void PrepareBoardData(t_boarddata *, float, float, unsigned int, unsigned int, unsigned int);
+
 t_boarddata NewBoardData(float, float, unsigned int, unsigned int, unsigned int);
 
 typedef struct s_minesweepergfx {

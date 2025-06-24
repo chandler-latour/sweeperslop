@@ -36,7 +36,17 @@ int main(void)
     //--------------------------------------------------------------------------------------
 
 	//set up minesweeper board
-	t_boarddata bd = NewBoardData(48, 48, 9, 9, 10);
+	t_boarddata bd;
+	PrepareBoardData(&bd, 48, 48, 9, 9, 10);
+	//bd has sub structures with pointers that point to other substructures in bd
+	//this is a complication because if I use a function that simply returns a bd,
+	//all the pointers will be wrong because the memory address of the bd that returns
+	//will be different than the one in the function
+	//I want to keep some strucutural stuff on the stack when I can, so I cooked up
+	//this function which wants a reference to a bd that already exists instead.
+	//This is a much more flexible option because if I decide I want to malloc some board datas later,
+	//it can handle that too!
+
 	t_minesweepergfx gfx = LoadMinesweeperGFX();
 	
 	t_gamestate classic_gs;
