@@ -24,12 +24,26 @@ typedef struct s_test {
 */
 
 void UpdateDrawFrame(void *);
-int main(void)
+int main(int argc, char ** argv)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
     const int screenWidth = 640;
     const int screenHeight = 480;
+	int mines = 10;
+	int width = 9;
+	int height = 9;
+	printf("Starting with %d arguments\n", argc);
+	if (argc == 4) {
+		int stat = 0;
+		stat += sscanf(argv[1], "%d", &width);
+		stat += sscanf(argv[2], "%d", &height);
+		stat += sscanf(argv[3], "%d", &mines);
+		printf("Read %d arguments\n", stat);
+		if (stat != 3) {
+			return -1;
+		}
+	}
 
     InitWindow(screenWidth, screenHeight, "SWEEPER SLOP");
 
@@ -37,7 +51,7 @@ int main(void)
 
 	//set up minesweeper board
 	t_boarddata bd;
-	PrepareBoardData(&bd, 48, 48, 9, 9, 10);
+	PrepareBoardData(&bd, 16, 48, width, height, mines);
 	//bd has sub structures with pointers that point to other substructures in bd
 	//this is a complication because if I use a function that simply returns a bd,
 	//all the pointers will be wrong because the memory address of the bd that returns
