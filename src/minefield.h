@@ -14,7 +14,8 @@ typedef struct s_minefield {
 	//actually a bitmap, an array of bits, not used as ints
 } t_minefield;
 
-enum VIEWTILES {
+enum VIEWTILES { //enum for all the visible label data for tiles
+	FLAG_FALSE=-5, //sprite for the endgame for flags on safe tiles
 	BUMP=-4,
 	FLAG=-3,
 	MINE_H=-2,
@@ -110,8 +111,30 @@ TODO: write one that propagates WITHOUT using recursion.
 
 enum VIEWTILES RevealTile(t_minefield *, unsigned int, unsigned int, unsigned char, unsigned char);
 
+
 /*
-This function takes an x, y coordinate and turns it into an indice for the
-minefield
+ This function evaluates the game state of a board. It goes through every tile to check if it's revealed and safe.
+ It returns an int for the number of mines which are unrevealed and safe.
+ If it returns 0, that's a victory condition; it means every mine which has been revealed is safe
+ If it finds a revealed tile with a mine in it, it prematurely returns -1, which means "loss" (you clicked on a mine!)
+ * */
+
+int EvaluateBoard(t_minefield *);
+
+/*
+This function reveals all mine tiles, and does nothing else.
+This is classic minesweeper behavior when you lose the game.
 */
+
+void RevealAllMines(t_minefield *);
+
+
+/*
+ * This function checks every flag. If a flag is placed upon a tile
+ * that is not a mine, that flag is replaced with a "false flag" sprite
+ * (a flag with a red X over it). This is also classic minesweeper
+ * behavior when you lose the game.
+ */
+void RevealAllFlags(t_mineview *);
+
 #endif

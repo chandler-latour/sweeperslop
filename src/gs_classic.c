@@ -62,56 +62,43 @@ void UpdateClassicMineBoard(void * bdv) {
 	
 	signed char * selected_tile = &(mv->proximities[s_x + s_y * mf->width]);
 
-	if (IsMouseButtonPressed(0)) {
-		int prox = RevealTile(mf, s_x, s_y, 0, 10);
-		UpdateMineView(mv); //TODO: UpdateMineView seems to receive a busted-ass
-		/*
-		version of the mineview wtf wtf idk
-		to clarify, I think the mineview is fine, but the minefield it points to is all kinds of busted
-		the width and height are way off and it causes the function trying to update the proximities list to segfault!
-		an example of my point:
-		gdb, break at UpdateMineView
-		value of mv->mf (mineview pointer to minefield): 0x0x7fffffff da28
-		up;
-		value of mf (mf pointer directly): 0x7fffffff dac8 
-		(off by 10, in the 16ths place)
-		breakthrough: mv.mf in the up also has the same value
-		it wasn't read wrong, it was assigned wrong!!! (fuck)
-	
-		MORE NOTES:
-		At the end of ComputeMineView, mv.mf == &(bd.mf) . . . FROM NewBoardData!!!!!!
-		Back in main, &bd.mv.mf is 10 off in the 16ths place!!!! (that's the problem!)
-		a bandaid solution would be to manually reassign the pointer in MAIN
-		but that sounds dirty and like I am doing a light hack because I can't figure out
-		some behavior IDK
-		but it doesn't make sense; why would the memory address change????
-
-		*/
-	}
-	if (IsMouseButtonPressed(1) && *selected_tile == H) {
-		*selected_tile = FLAG;
-	}
-	else if (IsMouseButtonPressed(1) && *selected_tile == FLAG) {
-		*selected_tile = H;
-	}
+	int game_state = EvaluateBoard(mf);
+	if (game_state > 0) {
+		if (IsMouseButtonPressed(0) && *selected_tile != FLAG) {
+			int prox = RevealTile(mf, s_x, s_y, 0, 10);
+			if (prox == MINE) {
+				RevealAllMines(mf);
+				RevealAllFlags(mv);
+			}
+			UpdateMineView(mv);
+			game_state = EvaluateBoard(mf);
+		}
+		if (IsMouseButtonPressed(1) && *selected_tile == H) {
+			*selected_tile = FLAG;
+		}
+		else if (IsMouseButtonPressed(1) && *selected_tile == FLAG) {
+			*selected_tile = H;
+		}
+	}	
 }
 
 t_minesweepergfx LoadMinesweeperGFX() {
 	t_minesweepergfx gfx;
-	gfx.tiles[0] =  LoadTexture("../assets/tex/bump_tile.png");
-    gfx.tiles[1] =  LoadTexture("../assets/tex/flag_tile.png");
-    gfx.tiles[2] =  LoadTexture("../assets/tex/unrevealed_tile.png"); //TODO: draw unrevealed tile with mine on it and put it here
-    gfx.tiles[3] =  LoadTexture("../assets/tex/unrevealed_tile.png");
-    gfx.tiles[4] =  LoadTexture("../assets/tex/blank_tile.png");
-    gfx.tiles[5] =  LoadTexture("../assets/tex/one_tile.png");
-    gfx.tiles[6] =  LoadTexture("../assets/tex/two_tile.png");
-    gfx.tiles[7] =  LoadTexture("../assets/tex/three_tile.png");
-    gfx.tiles[8] =  LoadTexture("../assets/tex/four_tile.png");
-    gfx.tiles[9] =  LoadTexture("../assets/tex/five_tile.png");
-    gfx.tiles[10] = LoadTexture("../assets/tex/six_tile.png");
-    gfx.tiles[11] = LoadTexture("../assets/tex/seven_tile.png");
-    gfx.tiles[12] = LoadTexture("../assets/tex/eight_tile.png");
-    gfx.tiles[13] = LoadTexture("../assets/tex/mine_tile.png");
+	gfx.tiles[0]  = LoadTexture("../assets/tex/flag_false_tile.png");
+	gfx.tiles[1]  = LoadTexture("../assets/tex/bump_tile.png");
+	gfx.tiles[2]  = LoadTexture("../assets/tex/flag_tile.png");
+	gfx.tiles[3]  = LoadTexture("../assets/tex/unrevealed_tile.png"); //TODO: draw unrevealed tile with mine on it and put it here
+	gfx.tiles[4]  = LoadTexture("../assets/tex/unrevealed_tile.png");
+	gfx.tiles[5]  = LoadTexture("../assets/tex/blank_tile.png");
+	gfx.tiles[6]  = LoadTexture("../assets/tex/one_tile.png");
+	gfx.tiles[7]  = LoadTexture("../assets/tex/two_tile.png");
+	gfx.tiles[8]  = LoadTexture("../assets/tex/three_tile.png");
+	gfx.tiles[9]  = LoadTexture("../assets/tex/four_tile.png");
+	gfx.tiles[10] = LoadTexture("../assets/tex/five_tile.png");
+	gfx.tiles[11] = LoadTexture("../assets/tex/six_tile.png");
+	gfx.tiles[12] = LoadTexture("../assets/tex/seven_tile.png");
+	gfx.tiles[13] = LoadTexture("../assets/tex/eight_tile.png");
+	gfx.tiles[14] = LoadTexture("../assets/tex/mine_tile.png");
 	return gfx;
 }
 
@@ -142,7 +129,7 @@ void DrawClassicMineBoard(void * bdv, void * gfxv) {
                 for (int j = 0; j < mf->height; j++) {
                     signed char prox = mv->proximities[i + j * mf->width];
 					//TODO I GOTTA GET THE TEXTURES INTO THE FUNCTION SOMEHOW
-                    DrawTexture(gfx->tiles[prox + 4], i*TILE_SIZE + bdx, j * TILE_SIZE + bdy, YELLOW);
+                    DrawTexture(gfx->tiles[prox + 5], i*TILE_SIZE + bdx, j * TILE_SIZE + bdy, YELLOW); //TODO get rid of magic 5 constant (it's for the negative enum offset)
                 }
             }
             //draw selector

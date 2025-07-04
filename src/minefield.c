@@ -132,10 +132,11 @@ this function updates a mineview without creating a new one.
 void UpdateMineView(t_mineview * mv) {
 	unsigned int w = mv->mf->width;
 	unsigned int h = mv->mf->height;
-	
+	signed char prox = 0;	
 	for (int i = 0; i < w; i++) {
 		for (int j = 0; j < h; j++) {
-			if (mv->proximities[i + j * w] == FLAG) {
+			prox = mv->proximities[i + j * w];
+			if (prox == FLAG || prox == FLAG_FALSE) {
 				continue;
 			}
 			mv->proximities[i + j * w] = ComputeTile(mv->mf, i, j);
@@ -280,3 +281,94 @@ enum VIEWTILES RevealTile(t_minefield * mf, unsigned int x, unsigned int y, unsi
 void FreeMineView(t_mineview * mv) {
 	free(mv->proximities);
 }
+
+/*
+ This function evaluates the game state of a board. It goes through every tile to check if it's revealed and safe.
+ It returns an int for the number of mines which are unrevealed and safe.
+ If it returns 0, that's a victory condition; it means every mine which has been revealed is safe
+ If it finds a revealed tile with a mine in it, it prematurely returns -1, which means "loss" (you clicked on a mine!)
+ * */
+
+int EvaluateBoard(t_minefield * mf) {
+	int tiles_remaining = mf->width * mf->height - mf->mine_count;
+	t_bitaddr ba;
+	int tile_rev = 0; //integer to store whether this tile has been revealed
+	int mine_x = 0;
+	int mine_y = 0;
+	for (int i = 0; i < mf->width; i++) {
+		for (int j = 0; j < mf->height; j++) {
+			ba = CoordinateToBitAddr(mf, i, j);
+			tile_rev = mf->revealed[ba.int_index] & ba.bit_mask; //AND masks the bit we want to check
+			//every other bit bit becomes zero, this bit stays as it is
+			//so if it's 0, the whole int evaluates that way
+			//NOTE: a revealed tile can evaluate as many different non-zero numbers, not just 1!
+			//This is because I didn't clamp that flipped bit down to the ones place.
+			//So, up ahead I check > 0 rather than == 1
+			if (tile_rev > 0) {
+				for (int m = 0; m < mf->mine_count; m++) {
+					mine_x = mf->mine_locations[m * 2];
+					mine_y = mf->mine_locations[m * 2 + 1];
+					if (mine_x == i && mine_y == j) {
+						return -1;
+						//Found a revealed mine, oopsies!
+					}
+				}
+// If we made it this far, it means we found a tile that is revealed and lacks a mine.
+				tiles_remaining -= 1; 
+			}
+		}
+	}
+	return tiles_remaining;
+}
+
+/*
+ * This function reveals all mine tiles, and does nothing else.
+ * This is classic minesweeper behavior when you lose the game.
+ */
+
+void RevealAllMines(t_minefield * mf) {
+	for (int m = 0; m < mf->mine_count; m++) {
+		RevealTile(mf, mf->mine_locations[m * 2], mf->mine_locations[m * 2 + 1], 0, 1);
+	}
+}
+
+
+ /*
+ * This function checks every flag. If a flag is placed upon a tile
+ * that is not a mine, that flag is replaced with a "false flag" sprite
+ * (a flag with a red X over it). This is also classic minesweeper
+ * behavior when you lose the game.
+ */
+void RevealAllFlags(t_mineview * mv) {
+	unsigned int len = mv->mf->width * mv->mf->height;
+	int valid_flag = 1;
+	int mine_x = 0;
+	int mine_y = 0;
+	int tile_x = 0;
+	int tile_y = 0;
+	for (int i = 0; i < len; i++) {
+		valid_flag = 1;
+		tile_y = i / mv->mf->width;
+		tile_x = i % mv->mf->width;
+		if (mv->proximities[i] == FLAG) {
+			valid_flag = 0;
+			for (int i = 0; i < mv->mf->mine_count; i++) {
+				mine_x = mv->mf->mine_locations[i * 2];
+				mine_y = mv->mf->mine_locations[i * 2 + 1];
+				if (mine_y == tile_y && mine_x == tile_x) {
+					valid_flag = 1;
+					break;
+				}
+			}
+			if (valid_flag == 0) {
+				mv->proximities[i] = FLAG_FALSE;
+			}
+		}
+	}
+}
+
+  
+
+				
+				
+				

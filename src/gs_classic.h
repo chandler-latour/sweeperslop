@@ -6,7 +6,7 @@
 #include "gamestate.h"
 #include "minefield.h"
 
-#define TILE_SPRITE_COUNT 14 //MAKE SURE TO CHANGE THIS
+#define TILE_SPRITE_COUNT 15 //MAKE SURE TO CHANGE THIS
 #define TILE_SIZE 32
 //WHEN YOU ADD MORE TEXTURES!
 
