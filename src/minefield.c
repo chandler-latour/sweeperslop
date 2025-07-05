@@ -49,6 +49,8 @@ the manually-allocated arrays inside of it.
 void FreeMineField(t_minefield * mf) {
 	free(mf->mine_locations);
 	free(mf->revealed);
+	mf->mine_locations = NULL;
+	mf->revealed = NULL;
 };
 
 /*
@@ -65,7 +67,6 @@ void UnrevealBoard(t_minefield * mf) {
 	if (gap > 0) {
 		arr_size = arr_size + 1;
 	}
-	printf("Array Size is %d\n", arr_size);
 	//TODO: extrapolate the above functionality into a function so it can be shared between multiple functions
 	for (int i = 0; i < arr_size; i++) {
 		mf->revealed[i] = 0x00000000;//zero out the integer to unreveal every mine
@@ -238,7 +239,6 @@ enum VIEWTILES RevealTile(t_minefield * mf, unsigned int x, unsigned int y, unsi
 	}
 	*/
 	int return_val = ComputeTile(mf, x, y);
-	printf("return value of compute tile is %d\n", return_val);
 	if (return_val == MINE) {
 		return return_val; //return the mine to the game so it can decide how to deal with the ensuing explosion.
 	} 
@@ -280,6 +280,7 @@ enum VIEWTILES RevealTile(t_minefield * mf, unsigned int x, unsigned int y, unsi
 //this one frees the memory occupied by a mineview
 void FreeMineView(t_mineview * mv) {
 	free(mv->proximities);
+	mv->proximities = NULL;
 }
 
 /*

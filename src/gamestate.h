@@ -37,12 +37,23 @@ a helper function that runs both the update and draw function of a gamestate in 
 */
 void comboloop(void *);
 
+/*
+ * enums for a bit array. Each bit here is a boolean for a certain property. 
+ */
+enum LINKED_GS_FLAGS { 
+	UPDATE=1,
+	DRAW=2
+};
 
 //a linked list for the gamestates
 //means we can go thru each gamestate and update them one at a time
 typedef struct s_linked_gamestate {
 	t_gamestate * gs;
 	t_gamestate * next_gs;
+	unsigned int FLAGS;
 } t_linked_gamestate;
+
+
+void IterateLinkedGamestates(t_linked_gamestate *);
 
 #endif
