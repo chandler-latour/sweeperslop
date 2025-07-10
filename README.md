@@ -21,7 +21,7 @@ to get this project ready for build, you need to do the following:
 2. Run "make setup" to set up the `build/` and `include/` directory. It'll create empty folders for each platform.
 3. Put raylib's three .h headers in the `include/` folder. Header files are generally platform agnostic, and Raylib's are no exception, so if you download Raylib for multiple platforms, you'll notice they all have the same header files. This means you'll only need one copy of the three header files for any platform and it'll work with all of them.
 4. For your desired target platform within build/, put the static Raylib library in the lib/ subdirectory.
-5. To build for the web, just run "make". To build for Linux, run "make linux_amd64"
+5. To build for the web, [make sure you have EMSDK set up, enabled, and sourced](https://emscripten.org/docs/getting_started/downloads.html#dsk-download-and-install), and then run "make". To build for Linux, run "make linux_amd64"
 
 To run the built projects, I wrote shell scripts for the various platforms. I understand I can write makefile rules to do this too, and I may investigate this option more in the future. For some special functionality, you may need to run the program manually rather than via shell script.
 
