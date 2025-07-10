@@ -99,6 +99,7 @@ clean:
 #todo: make the cleanup clean up ALL POSSIBLE obj and bin directories.
 
 setup:
+	mkdir include
 	mkdir build
 	mkdir build/emscripten
 	mkdir build/emscripten/obj
