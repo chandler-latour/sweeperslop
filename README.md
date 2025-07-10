@@ -1,4 +1,4 @@
-#SweeperSlop
+# SweeperSlop
 Sweeperslop is my working title name for a web game that will be based on minesweeper. It is currently early in development and there is much to come. I have built this project in C using the Raylib game development library. It targets the web as a first-class citizen build target, and the project's infrastructure is built to support the web, but it also has a linux-native build target that I use to simplify testing. 
 
 ## Build and library information
