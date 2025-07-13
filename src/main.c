@@ -28,8 +28,8 @@ int main(int argc, char ** argv)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 640;
-    const int screenHeight = 480;
+    int screenWidth = 640;
+    int screenHeight = 480;
 	int mines = 10;
 	int width = 9;
 	int height = 9;
@@ -43,6 +43,8 @@ int main(int argc, char ** argv)
 		if (stat != 3) {
 			return -1;
 		}
+		screenWidth = TILE_SIZE * width + 64;
+		screenHeight = TILE_SIZE * height + 64;
 	}
 
     InitWindow(screenWidth, screenHeight, "SWEEPER SLOP");

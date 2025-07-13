@@ -249,7 +249,6 @@ enum VIEWTILES RevealTile(t_minefield * mf, unsigned int x, unsigned int y, unsi
 		}
 		empty_tiles[0] = x;
 		empty_tiles[1] = y;
-		int tile_index = 0;
 		//if there are no mines anywhere around this square, propagate!
 		//iterate through each of the 8 neighboring cells, skipping the center cells
 		//dynamic bound checking to account for corners and walls on the edge of the minefield.
