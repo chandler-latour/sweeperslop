@@ -106,10 +106,10 @@ Don't recursively propagate too much, because it could tank the framerate or
 crash the game. Also, perhaps the player should have an exploration vision radius
 just feels realistic that way or something, idk
 
-TODO: write one that propagates WITHOUT using recursion.
+Arguments go: minefield pointer, x, y, "propagate" (set to 1 to reveal many tiles).
 */
 
-enum VIEWTILES RevealTile(t_minefield *, unsigned int, unsigned int, unsigned char, unsigned char);
+enum VIEWTILES RevealTile(t_minefield *, unsigned int, unsigned int, unsigned char);
 
 
 /*

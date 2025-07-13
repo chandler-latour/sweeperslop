@@ -65,7 +65,7 @@ void UpdateClassicMineBoard(void * bdv) {
 	int game_state = EvaluateBoard(mf);
 	if (game_state > 0) {
 		if (IsMouseButtonPressed(0) && *selected_tile != FLAG) {
-			int prox = RevealTile(mf, s_x, s_y, 0, 10);
+			int prox = RevealTile(mf, s_x, s_y, 1);
 			if (prox == MINE) {
 				RevealAllMines(mf);
 				RevealAllFlags(mv);

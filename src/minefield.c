@@ -216,11 +216,7 @@ by contrast, this function is designed for actually engaging in gameplay and rev
 
 TODO: write one that propagates WITHOUT using recursion.
 */
-enum VIEWTILES RevealTile(t_minefield * mf, unsigned int x, unsigned int y, unsigned char depth, unsigned char limit) {
-	if (depth == limit) {
-		return H; //if we're in too deep in the recursion, just stop and return
-		//TODO: write this function without recursion
-	}
+enum VIEWTILES RevealTile(t_minefield * mf, unsigned int x, unsigned int y, unsigned char propagate) {
 	t_bitaddr ba = CoordinateToBitAddr(mf, x, y);
 	mf->revealed[ba.int_index] = mf->revealed[ba.int_index] | ba.bit_mask; //a bitwise operation to turn that bit to a 1
 	
@@ -242,7 +238,18 @@ enum VIEWTILES RevealTile(t_minefield * mf, unsigned int x, unsigned int y, unsi
 	if (return_val == MINE) {
 		return return_val; //return the mine to the game so it can decide how to deal with the ensuing explosion.
 	} 
-	if (return_val == 0) {
+	if (return_val == 0 && propagate == 1) {
+		unsigned int max_tiles = (mf->width * mf->height - mf->mine_count) * 2 ;
+		unsigned int empty_tile_count = 1;
+		unsigned int empty_tiles[max_tiles]; //stores the x and y values of the empty tiles to be checked
+						     //it can't be larger than the amount of tiles on the board minus the mines
+						     //but multiply that times 2 because we have 2 entries per tile, x and y
+		for (int i = 0; i < max_tiles; i++) {
+			empty_tiles[i] = 0;
+		}
+		empty_tiles[0] = x;
+		empty_tiles[1] = y;
+		int tile_index = 0;
 		//if there are no mines anywhere around this square, propagate!
 		//iterate through each of the 8 neighboring cells, skipping the center cells
 		//dynamic bound checking to account for corners and walls on the edge of the minefield.
@@ -250,30 +257,50 @@ enum VIEWTILES RevealTile(t_minefield * mf, unsigned int x, unsigned int y, unsi
 		int x_end = (x < mf->width-1) ? 1 : 0;
 		int y_start = (y > 0) ? -1 : 0;
 		int y_end = (y < mf->height-1) ? 1 : 0;
-		for (int i = x_start; i < x_end + 1; i++) {
-			for (int j = y_start; j < y_end + 1; j++) {
-				if (i == 0 && j == 0) {
-					continue; //(0, 0) relative is THIS TILE. If we propagate this tile it'll be an endless loop.
+		unsigned int tx = x; //short for "this x"
+		unsigned int ty = y;
+		int masked_int = 0;
+		int reveal_return = 0;
+		for (int tile_index = 0; tile_index < empty_tile_count; tile_index++) {
+			tx = empty_tiles[tile_index * 2];
+			ty = empty_tiles[tile_index * 2 + 1];
+			x_start = (tx > 0) ? -1 : 0;
+			x_end = (tx < mf->width-1) ? 1 : 0;
+			y_start = (ty > 0) ? -1 : 0;
+			y_end = (ty < mf->height-1) ? 1 : 0;
+			for (int i = x_start; i < x_end + 1; i++) {
+				for (int j = y_start; j < y_end + 1; j++) {
+					if (i == 0 && j == 0) {
+						continue; //(0, 0) is relative to this tile means it is this tile
+					}
+					ba = CoordinateToBitAddr(mf, tx+i, ty+j);
+					masked_int = mf->revealed[ba.int_index] & ba.bit_mask;
+					if (masked_int == 0) {
+						reveal_return = RevealTile(mf, tx + i, ty + j, 0); //doesn't propagate, just returns the tile
+						if (reveal_return == 0) {
+							int ctx = 0;
+							int cty = 0;
+							int duped = 0;
+							for (int k = 0; k < empty_tile_count; k++) {
+								ctx = empty_tiles[k * 2];
+								cty = empty_tiles[k * 2 + 1];
+								if (ctx == tx + i && cty == ty + j) {
+									//revealed tile is already in array, no need to add it
+									duped = 1;
+									break;
+								}
+							}
+							if (duped == 0) {
+								empty_tiles[empty_tile_count * 2] = tx + i;
+								empty_tiles[empty_tile_count * 2 + 1] = ty + j;
+								empty_tile_count++;
+							}
+						}
+					}
 				}
-				
-				//check if the next tile we want to reveal is already revealed or not.
-				//If we don't do this, we will waste numerous CPU cycles on already revealed tiles!
-				
-				ba = CoordinateToBitAddr(mf, x+i, y+j); //we weren't using this variable for anything else at this point
-				//so it's OK to re-use it and change it to the new one we need.
-				int masked_int = mf->revealed[ba.int_index] & ba.bit_mask;
-				//gets an int for the cell's int where all the other bits are 0 and the bit we want 
-				//remains as it is
-				if (masked_int == 0) {
-					//this means the tile is unrevealed and needs to be revealed.
-					//(otherwise we wouldn't enter this block at all and would just continue the for loop)
-					//TODO: consider finding a non-recursive way to do this and ensure the process propogates.
-					RevealTile(mf, x + i, y + j, depth + 1, limit);	
-				}	
 			}
-		}	
+		}
 	}
-
 	return return_val;
 }
 
@@ -329,7 +356,7 @@ int EvaluateBoard(t_minefield * mf) {
 
 void RevealAllMines(t_minefield * mf) {
 	for (int m = 0; m < mf->mine_count; m++) {
-		RevealTile(mf, mf->mine_locations[m * 2], mf->mine_locations[m * 2 + 1], 0, 1);
+		RevealTile(mf, mf->mine_locations[m * 2], mf->mine_locations[m * 2 + 1], 0);
 	}
 }
 
