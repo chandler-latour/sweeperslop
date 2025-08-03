@@ -3,26 +3,12 @@
 //These data structures will also point to a "gamedata" object in memory, which can be very vague.
 #ifndef GAMESTATE
 #define GAMESTATE
+#include <assert.h>
 
 typedef struct s_gamestate {
-	//void (*f_instantiate)(); //the function to instantiate properties into memory
-	//void (*f_init)(void *); //the function to get the gamestate ready for use
-	/*
-	I can't feed arguments to these functions because the structure needs to be
-	flexible and accommodate a large variety of different options
-	so, I feed it a single void pointer and it could mean anything.
-	In practice, that pointer will be a pointer to the game state's
-	game data.
-
-	So, setting up a gamestate will go:
-	t_gamestate gs;
-	(assign the functions)
-	(instantiate the game data)
-	(assign the game data as desired)
-	gs.init(&gs.game_data)
-	gs.f_instantiate();
-	*/
-	void (*f_update)(void *);
+	int (*f_update)(void *); //returns a return code based on the outcome of a loop
+	//these vary between function types, with the sole exception that 0 always means "continue"
+	//("business as usual, keep going")
 	void (*f_draw)(void *, void *);
 	void (*f_close)(struct s_gamestate *);
 	void * game_data;
@@ -49,8 +35,15 @@ enum LINKED_GS_FLAGS {
 //means we can go thru each gamestate and update them one at a time
 typedef struct s_linked_gamestate {
 	t_gamestate * gs;
-	t_gamestate * next_gs;
-	unsigned int FLAGS;
+	t_gamestate * nexts;
+	void (*f_handle)(int, struct s_linked_gamestate *); //a function for handling the return codes from f_update
+	//it has to be in s_linked_gamestate and not s_gamestate so that it can
+	//create new linked gamestates and link them. This is because s_linked_gamestate relies on s_gamestate, and
+	//it isn't defined within s_gamestate's scope up in the source file. The only other way to get around that
+	//snag would be to work with a void pointer. I think void pointers are spooky and I try to avoid them
+	//if it is possible and handy to do so. I'm in a situation where I know exactly WHAT TYPE of data needs to
+	//go in the function, I don't need flexibility. 
+	unsigned int flags;
 } t_linked_gamestate;
 
 
