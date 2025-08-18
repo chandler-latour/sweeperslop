@@ -43,7 +43,16 @@ t_gamestate NewClassicMineBoard(float, float, unsigned int, unsigned int, unsign
 void CloseClassicMineBoard(t_gamestate *);
 
 //updates the minefield, allows the player to click tiles or flag 'em
-void UpdateClassicMineBoard(void *);
+int UpdateClassicMineBoard(void *);
+
+enum CLASSIC_GAMESTATE_RETURN {
+	CGS_CONTINUE = 0;
+	CGS_WIN = 1;
+	CGS_FAIL = -1;
+}
+
+//Handles the return code from a classic game state.
+void HandleClassicMineBoard(int, t_linked_gamestate *);
 
 //draws the minefield
 void DrawClassicMineBoard(void *, void *);

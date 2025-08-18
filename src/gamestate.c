@@ -24,7 +24,9 @@ void IterateLinkedGamestates(t_linked_gamestate * first) {
 		gs = lgs->gs;
 		if (lgs->flags & UPDATE != 1){
 			return_code = gs->f_update(lgs->gs->game_data);
-			//TODO: update gs_classic to give a return code!
+			if (return_code != 0) {
+				lgs->handle(return_code, lgs);
+			}
 		}
 		if (lgs->flags & DRAW != 0) {
 			gs->f_draw(lgs->gs->game_data, lgs->gs->graphics_data);

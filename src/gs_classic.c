@@ -51,7 +51,7 @@ t_vec2int MouseToTile(float bdx, float bdy, unsigned int width, unsigned int hei
 }
 
 //updates the minefield, allows the player to click tiles or flag 'em
-void UpdateClassicMineBoard(void * bdv) {
+int UpdateClassicMineBoard(void * bdv) {
 	t_boarddata * bd = (t_boarddata *) bdv;
 
 	t_minefield * mf = &(bd->mf);
@@ -69,9 +69,13 @@ void UpdateClassicMineBoard(void * bdv) {
 			if (prox == MINE) {
 				RevealAllMines(mf);
 				RevealAllFlags(mv);
+				return CGS_FAIL; //LOSS
 			}
 			UpdateMineView(mv);
 			game_state = EvaluateBoard(mf);
+			if (game_state == 0) {
+				return CGS_WIN; //WIN
+			}
 		}
 		if (IsMouseButtonPressed(1) && *selected_tile == H) {
 			*selected_tile = FLAG;
@@ -79,7 +83,8 @@ void UpdateClassicMineBoard(void * bdv) {
 		else if (IsMouseButtonPressed(1) && *selected_tile == FLAG) {
 			*selected_tile = H;
 		}
-	}	
+	}
+	return CGS_CONTINUE; //situation normal
 }
 
 t_minesweepergfx LoadMinesweeperGFX() {
@@ -135,6 +140,17 @@ void DrawClassicMineBoard(void * bdv, void * gfxv) {
             //draw selector
             DrawCircle(s_x*TILE_SIZE + bdx, s_y*TILE_SIZE + bdy, 5, DARKBLUE);
 	EndDrawing();
+}
+
+void HandleClassicMineBoard(int return_code, t_linked_gamestate * lgs) {
+	if (return_code == CGS_WIN) {
+		//TODO: create a "status" gamestate containing the minesweeper timer and face
+		//TODO: change the face of that staus bar upon victory or failure
+	}
+	if (return_code == CGS_FAIL) {
+
+	}
+	//TODO: create a return code for the ":O" face when you're holding down the mouse and about to reveal a mine
 }
 
 /*
