@@ -22,13 +22,13 @@ void IterateLinkedGamestates(t_linked_gamestate * first) {
 	int return_code = 0;
 	do {
 		gs = lgs->gs;
-		if (lgs->flags & UPDATE != 1){
+		if ((lgs->flags & UPDATE) != 1){
 			return_code = gs->f_update(lgs->gs->game_data);
 			if (return_code != 0) {
-				lgs->handle(return_code, lgs);
+				lgs->f_handle(return_code, lgs);
 			}
 		}
-		if (lgs->flags & DRAW != 0) {
+		if ((lgs->flags & DRAW) != 0) {
 			gs->f_draw(lgs->gs->game_data, lgs->gs->graphics_data);
 		}
 		lgs = lgs->next;

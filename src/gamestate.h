@@ -4,6 +4,7 @@
 #ifndef GAMESTATE
 #define GAMESTATE
 #include <assert.h>
+#include <stddef.h>
 
 typedef struct s_gamestate {
 	int (*f_update)(void *); //returns a return code based on the outcome of a loop
@@ -35,7 +36,7 @@ enum LINKED_GS_FLAGS {
 //means we can go thru each gamestate and update them one at a time
 typedef struct s_linked_gamestate {
 	t_gamestate * gs;
-	t_gamestate * nexts;
+	struct s_linked_gamestate * next;
 	void (*f_handle)(int, struct s_linked_gamestate *); //a function for handling the return codes from f_update
 	//it has to be in s_linked_gamestate and not s_gamestate so that it can
 	//create new linked gamestates and link them. This is because s_linked_gamestate relies on s_gamestate, and

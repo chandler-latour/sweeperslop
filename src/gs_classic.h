@@ -46,10 +46,10 @@ void CloseClassicMineBoard(t_gamestate *);
 int UpdateClassicMineBoard(void *);
 
 enum CLASSIC_GAMESTATE_RETURN {
-	CGS_CONTINUE = 0;
-	CGS_WIN = 1;
-	CGS_FAIL = -1;
-}
+	CGS_CONTINUE = 0,
+	CGS_WIN = 1,
+	CGS_FAIL = -1
+};
 
 //Handles the return code from a classic game state.
 void HandleClassicMineBoard(int, t_linked_gamestate *);
